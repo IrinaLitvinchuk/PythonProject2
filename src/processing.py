@@ -18,3 +18,17 @@ result = filter_by_state(transactions)  # значение ключа по ум�
 print(result)
 result = filter_by_state(transactions, "CANCELED")
 print(result)
+
+
+def sort_by_date(transactions_list: list, reverse: bool = True) -> list:
+    """Функция сортирует список словарей по дате, по умолчанию - убывание, т.е. сначала новые даты"""
+    sorted_list = sorted(transactions_list, key=lambda x: x.get("date"), reverse=reverse)
+    return sorted_list
+
+
+# пример работы функции сортировки
+result = sort_by_date(transactions)  # сортируем даты от новых к старым, по убыванию
+print(result)
+
+result = sort_by_date(transactions, False)  # сортируем даты по возрастанию
+print(result)
