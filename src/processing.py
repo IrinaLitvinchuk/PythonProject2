@@ -1,4 +1,4 @@
-def filter_by_state(transactions_list: list, state:str="EXECUTED") -> list:
+def filter_by_state(transactions_list: list, state: str = "EXECUTED") -> list:
     """Функция фильтрует список словарей по значению ключа 'state'."""
     filtered_list = []
     for item in transactions_list:
