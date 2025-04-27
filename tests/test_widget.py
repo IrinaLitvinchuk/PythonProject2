@@ -1,6 +1,6 @@
 import pytest
 
-from src.widget import mask_account_card
+from src.widget import mask_account_card, get_date
 
 
 def test_test_mask_account_card_if_card() -> None:
@@ -39,14 +39,12 @@ def test_mask_account_card_not_valid() -> None:
         == """Введен некорректный номер карты или счета.
             Номер карты состоит из 16 цифр.
             Номер счета состоит из 20 цифр"""
-
     )
     assert (
         mask_account_card("Visa Gold 12345678901234567")
         == """Введен некорректный номер карты или счета.
             Номер карты состоит из 16 цифр.
             Номер счета состоит из 20 цифр"""
-
     )
 
 
@@ -55,3 +53,19 @@ def test_mask_account_card_wrong_type() -> None:
     with pytest.raises(TypeError):
         mask_account_card(12345)
         mask_account_card(["Visa", "Gold", 5999414228426353])
+
+
+def test_get_date(date_input):
+    """Тест на правильность преобразования даты"""
+    assert get_date(date_input) == "11.03.2024"
+
+
+def test_get_date_wrong_type() -> None:
+    """Тест на обработку некорректного типа данных. Ожидает строку, в противном случае вызывает TypeError"""
+    with pytest.raises(TypeError):
+        get_date(28042025)
+
+
+def test_get_date_empty() -> None:
+    """Проверка, что функция корректно обрабатывает входные строки, где отсутствует дата"""
+    assert get_date("") == "Отсутствует дата. Проверьте корректность входных данных"
