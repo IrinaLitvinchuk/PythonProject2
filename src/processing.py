@@ -27,6 +27,10 @@ def filter_by_state(transactions: list, state: str = "EXECUTED") -> str | list[A
 
 def sort_by_date(transactions: list, reverse: bool = True) -> list:
     """Функция сортирует список словарей по дате, по умолчанию - убывание, т.е. сначала новые даты"""
+    # for element in transactions:
+    #     date = element['date']
+    #     if element.get('date') == date:
+    #
     sorted_list = sorted(transactions, key=lambda x: x.get("date"), reverse=reverse)
     return sorted_list
 
