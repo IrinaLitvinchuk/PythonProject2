@@ -3,12 +3,12 @@ import pytest
 from src.masks import get_mask_account, get_mask_card_number
 
 
-def test_get_mask_card_number(card_number) -> None:
+def test_get_mask_card_number(card_number: str) -> None:
     """Тестирование правильности маскирования номера карты"""
     assert get_mask_card_number(card_number) == "7000 79** **** 6361"
 
 
-def test_get_mask_card_number_empty():
+def test_get_mask_card_number_empty() -> None:
     """Проверка, что функция корректно обрабатывает входные строки, где отсутствует номер карты"""
     assert get_mask_card_number("") == "Введите номер карты"
 
@@ -21,24 +21,23 @@ def test_get_mask_card_number_wrong_digits() -> None:
 
 def test_get_mask_card_number_wrong_type() -> None:
     """Проверка, что функция вызывает исключение TypeError,
-       если тип входных данных не соответствует ожидаемому (строка)"""
+    если тип входных данных не соответствует ожидаемому (строка)"""
     with pytest.raises(TypeError):
         get_mask_card_number(7000792289606361)
         get_mask_card_number([7000792289606361])
 
 
-def test_get_mask_account(account_number) -> None:
+def test_get_mask_account(account_number: str) -> None:
     """Тестирование правильности маскирования номера счета"""
     assert get_mask_account(account_number) == "**4305"
 
 
 def test_get_mask_account_wrong_type() -> None:
     """Проверка, что функция вызывает исключение TypeError,
-       если тип входных данных не соответствует ожидаемому (строка)"""
+    если тип входных данных не соответствует ожидаемому (строка)"""
     with pytest.raises(TypeError):
         get_mask_account(73654108430135874305)
         get_mask_account([7, 3, 6, 5])
-
 
 
 def test_get_mask_account_wrong_digit_count() -> None:

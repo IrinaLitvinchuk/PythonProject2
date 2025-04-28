@@ -38,4 +38,3 @@ def get_date(date_input: str) -> str:
             return new_date
         else:
             raise TypeError
-

@@ -1,6 +1,6 @@
 import pytest
 
-from src.widget import mask_account_card, get_date
+from src.widget import get_date, mask_account_card
 
 
 def test_test_mask_account_card_if_card() -> None:
@@ -55,7 +55,7 @@ def test_mask_account_card_wrong_type() -> None:
         mask_account_card(["Visa", "Gold", 5999414228426353])
 
 
-def test_get_date(date_input):
+def test_get_date(date_input: str) -> None:
     """Тест на правильность преобразования даты"""
     assert get_date(date_input) == "11.03.2024"
 
