@@ -20,7 +20,7 @@ git clone https://github.com/IrinaLitvinchuk/PythonProject2.git
 ```
 2. Установите зависимости:
 ```
-pip install -r requirements.txt
+poetry install
 ```
 
 ## Примеры работы функций:
@@ -66,10 +66,19 @@ pip install -r requirements.txt
 {'id': 594226727, 'state': 'CANCELED', 'date': '2018-09-12T21:27:25.241689'}, 
 {'id': 939719570, 'state': 'EXECUTED', 'date': '2018-06-30T02:08:58.425572'}]
 ```
-   
+## Тестирование:
+
+Проект покрыт юнит-тестами Pytest. Для их запуска выполните команду:
+```
+pytest tests
+```
+Информацию о покрытии кода тестами можно найти в файле [HTML](PythonProject2/main/develop/feature/homework_10_2/htmlcov/index.html)
+
+Процент покрытия на данный момент составляет 98%.
+
 ## Документация:
 
-Для получения дополнительной информации обратитесь к [документации](PythonProject2/README.md).
+Для получения дополнительной информации обратитесь к [документации](PythonProject2/README.md)
 
 ## Лицензия:
 
