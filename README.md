@@ -72,7 +72,7 @@ poetry install
 ```
 pytest tests
 ```
-Информацию о покрытии кода тестами можно найти в файле [HTML](PythonProject2/main/develop/feature/homework_10_2/htmlcov/index.html)
+Информацию о покрытии кода тестами можно найти в файле [HTML](./htmlcov/index.html)
 
 Процент покрытия на данный момент составляет 98%.
 
