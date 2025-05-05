@@ -1,13 +1,17 @@
 from typing import Iterator
 
 
-def filter_by_currency(transactions_list, currency):
+def filter_by_currency(transactions_list: list[dict], currency:str) -> Iterator[dict]:
     """Функция принимает на вход список словарей, представляющих транзакции, и возвращает итератор,
        который поочередно выдает транзакции, где валюта операции соответствует заданной (например, USD)."""
+
     filtered_list = iter(filter(lambda x: x['operationAmount']['currency']['code'] == currency, transactions_list))
     return filtered_list
 
-transactions_list =  (
+# чтобы проверить выполнение функции в этом модуле пришлось добавить сюда список с входными данными.
+# Получается,что фикстуры работают только в папке tests?
+# или их можно импортировать в src?
+transactions_list =   (
     [
         {
             "id": 939719570,
@@ -92,7 +96,7 @@ for _ in range(2):
     print(next(usd_transactions))
 
 
-def transaction_descriptions(transaction_list):
+def transaction_descriptions(transaction_list: list[dict]) -> Iterator[dict]:
     """Функция принимает список словарей с транзакциями и возвращает описание каждой операции по очереди."""
     for transaction in transaction_list:
         yield transaction.get('description')
@@ -103,14 +107,16 @@ for _ in range(5):
     print(next(descriptions))
 
 
+def card_number_generator(start=1, stop=9999999999999999):
+    """может сгенерировать номера карт в заданном диапазоне от 0000 0000 0000 0001 до 9999 9999 9999 9999."""
+    for number in range(start, stop + 1):
+        formatted_card = f"{number:016d}" # преобразуем в строку длиной ровно 16 символов, дополняя нулями впереди
+        new_card = [formatted_card[i:i + 4] for i in range(0, len(formatted_card), 4)]
+        yield ' '.join(new_card)
 
-# def card_number_generator(start, stop):
-#     """может сгенерировать номера карт в заданном диапазоне от 0000 0000 0000 0001 до 9999 9999 9999 9999."""
-#
-#
-#
-# for card_number in card_number_generator(1, 5):
-#     print(card_number)
+
+for card_number in card_number_generator(1, 5):
+    print(card_number)
 
 
 
