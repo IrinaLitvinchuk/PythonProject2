@@ -1,6 +1,3 @@
-from mypy.checkexpr import replace_callable_return_type
-
-
 def get_mask_card_number(card_number: str) -> str:
     """Функция, которая принимает на вход номер карты и возвращает ее маску"""
     if card_number != "":

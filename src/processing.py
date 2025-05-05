@@ -24,7 +24,7 @@ def sort_by_date(transactions: list, reverse: bool = True) -> list:
         if not all(sep in current_date for sep in ["-", ":", ".", "T"]):  # для теста на некорректный формат
             raise ValueError("Некорректно указан формат входных данных")
 
-    counts = {}  # Создаем словарь для подсчета частот дат
+    counts: dict = {}  # Создаем словарь для подсчета частот дат
     for date in dates:
         if date in counts:
             counts[date] += 1
