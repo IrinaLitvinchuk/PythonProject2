@@ -1,5 +1,4 @@
 from functools import wraps
-from time import time
 from typing import Any, Callable, Optional
 
 
@@ -9,37 +8,32 @@ def log(filename: Optional[str] = None) -> Callable[[Callable], Callable]:
     def decorator(func: Callable) -> Callable:
         @wraps(func)
         def wrapper(*args: tuple, **kwargs: dict) -> Any:
-            start_time = time()
             try:
                 result = func(*args, **kwargs)
-                finish_time = time()
-                message = (
-                    f"{func.__name__} ok \n"
-                    f"result = {result} \n"
-                    f"Start: {start_time} \n"
-                    f"Finish: {finish_time} \n"
-                )
-            except Exception as e:
-                finish_time = time()
-                message = (
-                    f"{func.__name__} error: {type(e).__name__}. Inputs: {args}, {kwargs} \n"
-                    f"Start: {start_time} \n"
-                    f"Finish: {finish_time} \n"
-                )
+                message = f"{func.__name__} ok \n"
+                if filename is not None:
+                    with open(filename, mode="a", encoding="utf-8") as file:
+                        file.write(message)
+                else:
+                    print(message)
+                return result
 
-            if filename is not None:
-                with open(filename, mode="a", encoding="utf-8") as file:
-                    file.write(message)
-            else:
-                print(message)
-            return func(*args, **kwargs)
+            except Exception as e:
+                message = f"{func.__name__} error: {type(e).__name__}. Inputs: {args}, {kwargs} \n"
+                if filename is not None:
+                    with open(filename, mode="a", encoding="utf-8") as file:
+                        file.write(message)
+                else:
+                    print(message)
+                raise
 
         return wrapper
 
     return decorator
 
+
 # @log()
 # def my_function(x, y):
-#     return x + y
+#     return x / y
 #
-# my_function(1, 2)
+# my_function(1, 0)
