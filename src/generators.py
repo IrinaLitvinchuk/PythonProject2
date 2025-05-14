@@ -78,12 +78,12 @@ for _ in range(5):
 
 def card_number_generator(start: int = 1, stop: int = 9999999999999999) -> Iterator[str]:
     """может сгенерировать номера карт в заданном диапазоне от 0000 0000 0000 0001 до 9999 9999 9999 9999."""
-    if start > 0 and stop <= 9999999999999999: # обрабатывает отрицательное число start и некорректный диапазон
+    if start > 0 and stop <= 9999999999999999:  # обрабатывает отрицательное число start и некорректный диапазон
         for number in range(start, stop + 1):
             formatted_card = f"{number:016d}"  # преобразуем в строку длиной ровно 16 символов, дополняя нулями впереди
             new_card = [formatted_card[i: i + 4] for i in range(0, len(formatted_card), 4)]
             yield " ".join(new_card)
-    return [] # возвращает пустой список при неправильном диапазоне
+    return []  # возвращает пустой список при неправильном диапазоне
 
 
 for card_number in card_number_generator(1, 5):
