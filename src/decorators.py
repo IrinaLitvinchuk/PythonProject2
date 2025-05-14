@@ -1,12 +1,12 @@
 from functools import wraps
 from time import time
-from typing import Any, Callable
+from typing import Any, Callable, Optional
 
 
-def log(filename: Any = None) -> None:
-    """Декоратор, который логирует работу функции и ее результат в файл (если указан) или выводит в консоль"""
+def log(filename: Optional[str] = None) -> Callable[[Callable], Callable]:
+    """Декоратор, который логирует работу функции и ее результат в файл (если указан) или выводит в консоль."""
 
-    def decorator(func: Callable) -> Any:
+    def decorator(func: Callable) -> Callable:
         @wraps(func)
         def wrapper(*args: tuple, **kwargs: dict) -> Any:
             start_time = time()
@@ -27,7 +27,6 @@ def log(filename: Any = None) -> None:
                     f"Finish: {finish_time} \n"
                 )
 
-                # Выводим сообщение в файл или в консоль
             if filename is not None:
                 with open(filename, mode="a", encoding="utf-8") as file:
                     file.write(message)
@@ -37,4 +36,10 @@ def log(filename: Any = None) -> None:
 
         return wrapper
 
-    return
+    return decorator
+
+# @log()
+# def my_function(x, y):
+#     return x + y
+#
+# my_function(1, 2)
