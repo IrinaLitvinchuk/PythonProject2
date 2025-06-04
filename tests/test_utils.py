@@ -1,24 +1,24 @@
-import pytest
-from unittest import mock
-from unittest.mock import patch, mock_open
 import json
+from unittest import mock
+from unittest.mock import mock_open, patch
+
 from src.utils import get_transactions
 
 
-@patch('os.path.isfile', return_value=True)
-@patch('builtins.open', new_callable=mock_open, read_data='[{"id": 1}, {"id": 2}]')
+@patch("os.path.isfile", return_value=True)
+@patch("builtins.open", new_callable=mock_open, read_data='[{"id": 1}, {"id": 2}]')
 def test_get_transactions_correct(mock_open, mock_isfile):
     """Тестирование корректной работы функции"""
-    path = '/correct/path/to/file.json'
+    path = "/correct/path/to/file.json"
     expected_result = [{"id": 1}, {"id": 2}]
     actual_result = get_transactions(path)
     assert actual_result == expected_result
 
 
-@mock.patch('builtins.open', side_effect=FileNotFoundError)
+@mock.patch("builtins.open", side_effect=FileNotFoundError)
 def test_file_not_found(mock_open):
     """Обработка ошибки, когда файл не найден"""
-    result = get_transactions('fake_path.json')
+    result = get_transactions("fake_path.json")
     assert result == []
 
 

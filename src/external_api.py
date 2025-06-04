@@ -1,11 +1,12 @@
 import os
-import json
+
 import requests
-from utils import get_transactions
 from dotenv import load_dotenv
 
+from utils import get_transactions
+
 load_dotenv()
-API_KEY = os.getenv('API_KEY')
+API_KEY = os.getenv("API_KEY")
 
 
 def get_converted_amount(transaction: dict) -> float:
@@ -14,13 +15,14 @@ def get_converted_amount(transaction: dict) -> float:
     Если валюта RUB, сумма сразу выводится без конвертации.Если USD или EUR,
     происходит обращение к внешнему API.
     """
-    to_currency = 'RUB'
-    amount = transaction['operationAmount']['amount']
-    currency_code = transaction['operationAmount']['currency']['code']
+    to_currency = "RUB"
+    amount = transaction["operationAmount"]["amount"]
+    currency_code = transaction["operationAmount"]["currency"]["code"]
 
-    if currency_code in ['USD', 'EUR']:
+    if currency_code in ["USD", "EUR"]:
         try:
-            url = f"https://api.apilayer.com/exchangerates_data/convert?to={to_currency}&from={currency_code}&amount={amount}"
+            url = (f"https://api.apilayer.com/exchangerates_data/convert?to={to_currency}&from={currency_code}"
+                   f"&amount={amount}")
             headers = {"apikey": API_KEY}
             response = requests.get(url, headers=headers)
 
@@ -28,7 +30,7 @@ def get_converted_amount(transaction: dict) -> float:
                 raise Exception(f"Request failed with status code {response.status_code}: {response.text}")
 
             data = response.json()
-            return data['result']
+            return data["result"]
 
         except requests.exceptions.RequestException as e:
             print(f"An error occurred: {e}. Please try again later.")
@@ -37,12 +39,10 @@ def get_converted_amount(transaction: dict) -> float:
         return amount
 
 
-path = 'data/operations.json'
+path = "data/operations.json"
 transactions_info = get_transactions(path)
 
 for transaction in transactions_info:
     converted_amount = get_converted_amount(transaction)
     if converted_amount is not None:
         print(converted_amount)
-
-

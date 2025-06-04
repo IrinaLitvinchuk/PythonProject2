@@ -187,3 +187,4 @@ def transactions_list_no_description() -> list[dict]:
             "to": "Счет 14211924144426031657",
         },
     ]
+
