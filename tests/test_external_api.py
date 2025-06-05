@@ -1,15 +1,55 @@
-from unittest.mock import patch
-
+import pytest
+from unittest.mock import patch, Mock
 from src.external_api import get_converted_amount
 
 
 @patch("requests.request")
-def test_get_converted_amount(mock_request):
-    """"""
-    mock_response = mock_request.return_value
+def test_successful_usd_conversion(mock_request, sample_transaction_usd):
+    """Тестирование успешной конвертации USD в рубли."""
+    mock_response = Mock()
     mock_response.status_code = 200
-    mock_response.json.return_value = {"result": 100.0}
+    mock_response.json.return_value = {"result": 7937.5}
+    mock_request.return_value = mock_response
 
-    transaction = {"operationAmount": {"amount": "10", "currency": {"code": "USD"}}}
-    result = get_converted_amount(transaction)
-    assert result == 100.0
+    result = get_converted_amount(sample_transaction_usd)
+    assert result == 7937.5
+
+
+@patch("requests.request")
+def test_successful_eur_conversion(mock_request, sample_transaction_eur):
+    """Тестирование успешной конвертации EUR в рубли."""
+    mock_response = Mock()
+    mock_response.status_code = 200
+    mock_response.json.return_value = {"result": 9106.6}
+    mock_request.return_value = mock_response
+
+    result = get_converted_amount(sample_transaction_eur)
+    assert result == 9106.6
+
+
+def test_no_conversion_needed(sample_transaction_rub):
+    """Тест без конвертации (валюта уже в рублях)."""
+    result = get_converted_amount(sample_transaction_rub)
+    assert result == 100
+
+
+@patch("requests.request")
+def test_api_request_failure(mock_request, sample_transaction_usd):
+    """обработка ситуации, когда API возвращает ошибку (например, код 400)."""
+
+    mock_response = Mock()
+    mock_response.status_code = 400
+    mock_response.text = "Bad request"
+    mock_request.return_value = mock_response
+
+    # Ожидаем выброс исключения
+    with pytest.raises(Exception) as exception_info:
+        get_converted_amount(sample_transaction_usd)
+    # Проверяем сообщение исключения
+    assert str(exception_info.value) == "Request failed with status code 400: Bad request"
+
+
+def test_invalid_currency(invalid_transaction):
+    """Тестирование случая, когда валюта неизвестна или некорректна (например, XXX)."""
+    result = get_converted_amount(invalid_transaction)
+    assert result == 100
