@@ -1,4 +1,5 @@
 import os
+from typing import Optional, cast
 
 import requests
 from dotenv import load_dotenv
@@ -9,20 +10,20 @@ load_dotenv()
 API_KEY = os.getenv("API_KEY")
 
 
-def get_converted_amount(transaction: dict) -> float:
-    """
-    Принимает на вход транзакцию и возвращает сумму транзакции в рублях.
+def get_converted_amount(transaction: dict) -> Optional[float]:
+    """Принимает на вход транзакцию и возвращает сумму транзакции в рублях.
     Если валюта RUB, сумма сразу выводится без конвертации. Если USD или EUR,
-    происходит обращение к внешнему API.
-    """
+    происходит обращение к внешнему API."""
     to_currency = "RUB"
     amount = transaction["operationAmount"]["amount"]
     currency_code = transaction["operationAmount"]["currency"]["code"]
 
     if currency_code in ["USD", "EUR"]:
         try:
-            url = (f"https://api.apilayer.com/exchangerates_data/convert?to={to_currency}&from={currency_code}"
-                   f"&amount={amount}")
+            url = (
+                f"https://api.apilayer.com/exchangerates_data/convert?to={to_currency}&from={currency_code}"
+                f"&amount={amount}"
+            )
             headers = {"apikey": API_KEY}
             response = requests.request("GET", url, headers=headers)
 
@@ -30,14 +31,14 @@ def get_converted_amount(transaction: dict) -> float:
                 raise Exception(f"Request failed with status code {response.status_code}: {response.text}")
 
             data = response.json()
-            result = data["result"]
+            result = cast(float, data["result"])  # Ясно говорим mypy, что это float
             return result
 
         except requests.exceptions.RequestException as e:
             print(f"An error occurred: {e}. Please try again later.")
             return None
     else:
-        return amount
+        return float(amount)  # Преобразование в float, чтобы соответствовать типу функции
 
 
 path = "data/operations.json"

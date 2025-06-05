@@ -190,42 +190,20 @@ def transactions_list_no_description() -> list[dict]:
 
 
 @pytest.fixture
-def sample_transaction_usd():
-    return {
-        "operationAmount": {
-            "amount": 100,
-            "currency": {"code": "USD"}
-        }
-    }
+def sample_transaction_usd() -> dict:
+    return {"operationAmount": {"amount": 100, "currency": {"code": "USD"}}}
 
 
 @pytest.fixture
-def sample_transaction_eur():
-    return {
-        "operationAmount": {
-            "amount": 100,
-            "currency": {"code": "EUR"}
-        }
-    }
+def sample_transaction_eur() -> dict:
+    return {"operationAmount": {"amount": 100, "currency": {"code": "EUR"}}}
 
 
 @pytest.fixture
-def sample_transaction_rub():
-    return {
-        "operationAmount": {
-            "amount": 100,
-            "currency": {"code": "RUB"}
-        }
-    }
+def sample_transaction_rub() -> dict:
+    return {"operationAmount": {"amount": 100, "currency": {"code": "RUB"}}}
 
 
 @pytest.fixture
-def invalid_transaction():
-    return {
-        "operationAmount": {
-            "amount": 100,
-            "currency": {"code": "XXX"}
-        }
-    }
-
-
+def invalid_transaction() -> dict:
+    return {"operationAmount": {"amount": 100, "currency": {"code": "XXX"}}}
