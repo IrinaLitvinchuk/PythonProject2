@@ -187,3 +187,23 @@ def transactions_list_no_description() -> list[dict]:
             "to": "Счет 14211924144426031657",
         },
     ]
+
+
+@pytest.fixture
+def sample_transaction_usd() -> dict:
+    return {"operationAmount": {"amount": 100, "currency": {"code": "USD"}}}
+
+
+@pytest.fixture
+def sample_transaction_eur() -> dict:
+    return {"operationAmount": {"amount": 100, "currency": {"code": "EUR"}}}
+
+
+@pytest.fixture
+def sample_transaction_rub() -> dict:
+    return {"operationAmount": {"amount": 100, "currency": {"code": "RUB"}}}
+
+
+@pytest.fixture
+def invalid_transaction() -> dict:
+    return {"operationAmount": {"amount": 100, "currency": {"code": "XXX"}}}
