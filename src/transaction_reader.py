@@ -1,14 +1,15 @@
+from typing import Any
+
 import pandas as pd
-import openpyxl
 
 
 def read_transactions_from_csv(file_path: str) -> list[dict]:
     """Функция считывает финансовые операции из файла CSV и возвращает список словарей"""
     try:
-        df = pd.read_csv(file_path, delimiter=';')
+        df = pd.read_csv(file_path, delimiter=";")
         # print(df.shape)
         # print(df.head(3))
-        transactions_list = df.to_dict(orient='records')
+        transactions_list = df.to_dict(orient="records")
         return transactions_list
 
     except FileNotFoundError:
@@ -19,7 +20,7 @@ def read_transactions_from_csv(file_path: str) -> list[dict]:
         return []
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     list_transactions = read_transactions_from_csv("data/transactions.csv")
     print(list_transactions)
 
@@ -30,7 +31,7 @@ def read_transactions_from_excel(file_path: str) -> list[dict]:
         df = pd.read_excel(file_path)
         # print(df.shape)
         # print(df.head(3))
-        transactions_list = df.to_dict(orient='records')
+        transactions_list = df.to_dict(orient="records")
         return transactions_list
 
     except FileNotFoundError:
@@ -41,6 +42,6 @@ def read_transactions_from_excel(file_path: str) -> list[dict]:
         return []
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     list_transactions = read_transactions_from_excel("data/transactions_excel.xlsx")
     print(list_transactions)

@@ -132,4 +132,3 @@ def test_excel_exception(mock_read_excel):
         result = read_transactions_from_excel("invalid_file.xlsx")
         assert result == []
         mock_print.assert_called_with("Произошла ошибка: Некорректный формат Excel")
-
