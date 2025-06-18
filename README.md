@@ -16,6 +16,11 @@
    2. `transaction_descriptions` - возвращает описание каждой операции из списка транзакций
    3. `card_number_generator` - выдает номера банковских карт
 * Декоратор `@log`, который логирует работу функции и ее результат как в файл, так и в консоль.
+* Модуль для работы с CSV и Excel файлами: `transaction_reader`
+```read_transactions_from_csv```: 
+Считывает финансовые операции из CSV файла и возвращает список словарей с транзакциями. 
+```read_transactions_from_excel```:
+Считывает финансовые операции из Excel файла и возвращает список словарей с транзакциями.
 
 
 ## Установка:
@@ -72,12 +77,23 @@ poetry install
 {'id': 594226727, 'state': 'CANCELED', 'date': '2018-09-12T21:27:25.241689'}, 
 {'id': 939719570, 'state': 'EXECUTED', 'date': '2018-06-30T02:08:58.425572'}]
 ```
-Пример работы декоратора:
+7. Пример работы декоратора:
 ```commandline
 @log(filename="mylog.txt")
 def my_function(x, y):
     return x + y
 my_function(1, 2)
+```
+
+8. Пример использования функции для чтения из CSV файла
+```
+transactions_csv = read_transactions_from_csv('path/to/transactions.csv')
+print(transactions_csv)
+```
+ Пример использования функции для чтения из Excel файла
+```
+transactions_excel = read_transactions_from_excel('path/to/transactions.xlsx')
+print(transactions_excel)
 ```
 
 ## Тестирование:
