@@ -2,8 +2,17 @@ import json
 import logging
 from typing import Dict, List, cast
 
+import os
+
+# Убедимся, что папка logs существует
+log_dir = r'C:\Users\Irina Litvinchuk\PycharmProjects\PythonProject2\logs'
+if not os.path.exists(log_dir):
+    os.makedirs(log_dir)
+
+# Теперь создаём логгер
+file_handler = logging.FileHandler(r'C:\Users\Irina Litvinchuk\PycharmProjects\PythonProject2\logs\utils.log',
+                                   mode='w', encoding='utf-8')
 utils_logger = logging.getLogger("utils_logger")
-file_handler = logging.FileHandler("../logs/utils.log", mode="w", encoding="utf-8")
 file_formatter = logging.Formatter("%(asctime)s - %(filename)s - %(levelname)s - %(message)s")
 file_handler.setFormatter(file_formatter)
 utils_logger.addHandler(file_handler)
@@ -28,11 +37,11 @@ def get_transactions(path: str) -> List[Dict]:
         return []
 
 
-path = "data/operations.json"  # успешный случай
-print(get_transactions(path))
-
-path = "data/operation.json"  # файл не найден
-print(get_transactions(path))
-
-path = "data/test_path.json"  # не список
-print(get_transactions(path))
+# path = "data/operations.json"  # успешный случай
+# print(get_transactions(path))
+#
+# path = "data/operation.json"  # файл не найден
+# print(get_transactions(path))
+#
+# path = "data/test_path.json"  # не список
+# print(get_transactions(path))

@@ -1,5 +1,5 @@
 from typing import Any
-
+from datetime import datetime
 
 def filter_by_state(transactions: list, state: str = "EXECUTED") -> str | list[Any]:
     """Функция фильтрует список словарей по значению ключа 'state'."""
@@ -14,6 +14,19 @@ def filter_by_state(transactions: list, state: str = "EXECUTED") -> str | list[A
 
 def sort_by_date(transactions: list, reverse: bool = True) -> list:
     """Функция сортирует список словарей по дате, по умолчанию - убывание, т.е. сначала новые даты"""
+
+    # Проверяем каждую дату на валидный формат
+    invalid_dates = []
+    for element in transactions:
+        current_date = element.get("date")
+        try:
+            # Пробуем конвертировать дату в объект datetime
+            datetime.fromisoformat(current_date.replace("Z", "+00:00"))
+        except (ValueError, TypeError):
+            invalid_dates.append(current_date)
+
+    if invalid_dates:
+        raise ValueError(f"Проверьте корректность даты операции: обнаружены некорректные даты {invalid_dates}")
 
     # Для теста, есть ли повторяющиеся даты, сначала собираем все даты из словарей
     dates = []
@@ -41,7 +54,9 @@ def sort_by_date(transactions: list, reverse: bool = True) -> list:
     if duplicates:
         raise ValueError("Проверьте корректность даты операции: найдены повторяющиеся даты.")
 
-    # Если ошибок нет, выполняем обычную сортировку
+
+
+    #Если ошибок нет, выполняем обычную сортировку
     sorted_list = sorted(transactions, key=lambda x: x.get("date"), reverse=reverse)
 
     return sorted_list

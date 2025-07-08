@@ -15,8 +15,8 @@ def get_converted_amount(transaction: dict) -> Optional[float]:
     Если валюта RUB, сумма сразу выводится без конвертации. Если USD или EUR,
     происходит обращение к внешнему API."""
     to_currency = "RUB"
-    amount = transaction["operationAmount"]["amount"]
-    currency_code = transaction["operationAmount"]["currency"]["code"]
+    amount = transaction.get('operationAmount', {}).get('amount', '')
+    currency_code = transaction.get('operationAmount', {}).get('currency', {}).get('code', '')
 
     if currency_code in ["USD", "EUR"]:
         try:
@@ -41,10 +41,10 @@ def get_converted_amount(transaction: dict) -> Optional[float]:
         return float(amount)  # Преобразование в float, чтобы соответствовать типу функции
 
 
-path = "data/operations.json"
-transactions_info = get_transactions(path)
-
-for transaction in transactions_info:
-    converted_amount = get_converted_amount(transaction)
-    if converted_amount is not None:
-        print(converted_amount)
+# path = "data/operations.json"
+# transactions_info = get_transactions(path)
+#
+# for transaction in transactions_info:
+#     converted_amount = get_converted_amount(transaction)
+#     if converted_amount is not None:
+#         print(converted_amount)
