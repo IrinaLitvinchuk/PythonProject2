@@ -1,3 +1,7 @@
+import math
+
+import pandas as pd
+
 from src.external_api import get_converted_amount
 from src.masks import get_mask_card_number, get_mask_account
 from src.search_and_count import process_bank_search
@@ -108,6 +112,43 @@ def ask_for_description(filtered_data):
             print('Проверьте корректность ввода')
 
 
+def normalize_transaction(transaction):
+    """
+    Функция нормализует любую транзакцию, привнося её к одному виду.
+    """
+    normalized_tx = {}
+    # ID
+    normalized_tx['id'] = int(transaction.get('id', '')) if transaction.get('id') else None
+    # State
+    normalized_tx['state'] = transaction.get('state', '')
+    # Date
+    normalized_tx['date'] = transaction.get('date', '')
+    # Amount & Currency
+    if 'operationAmount' in transaction:
+        # Случай JSON (операционная сумма в отдельном объекте)
+        normalized_tx['amount'] = transaction['operationAmount'].get('amount', '')
+        normalized_tx['currency'] = {
+            'name': transaction['operationAmount'].get('currency', {}).get('name', ''),
+            'code': transaction['operationAmount'].get('currency', {}).get('code', '')
+        }
+    else:
+        # Случаи CSV/XLSX (сумма и валюта на уровне верхнего уровня)
+        normalized_tx['amount'] = transaction.get('amount', '')
+        normalized_tx['currency'] = {
+            'name': transaction.get('currency_name', ''),
+            'code': transaction.get('currency_code', '')
+        }
+
+    # From / To
+    normalized_tx['from'] = transaction.get('from', '')
+    normalized_tx['to'] = transaction.get('to', '')
+
+    # Description
+    normalized_tx['description'] = transaction.get('description', '')
+
+    return normalized_tx
+
+
 def display_transactions(filtered_data):
     """Функция для красивого вывода операций в консоль."""
     print("\nРаспечатываю итоговый список транзакций...")
@@ -115,21 +156,32 @@ def display_transactions(filtered_data):
         print("Не найдено ни одной транзакции, подходящей под ваши условия фильтрации.")
         return
 
+    # Нормируем все транзакции перед выводом
+    normalized_data = [normalize_transaction(tx) for tx in filtered_data]
+
     # Заголовок таблицы
-    print(f"{'Программа:'}\nВсего банковских операций в выборке: {len(filtered_data)}\n")
+    print(f"{'Программа:'}\nВсего банковских операций в выборке: {len(normalized_data)}\n")
 
     # Шаблон для каждой транзакции
-    for idx, transaction in enumerate(filtered_data):
-        date = transaction.get('date', '')[:10]
+    for idx, transaction in enumerate(normalized_data):
+        date_obj = transaction.get('date', '')
+        if isinstance(date_obj, pd.Timestamp):
+            date = date_obj.strftime('%Y-%m-%d')
+        else:
+            date = str(date_obj)[:10]
+
         description = transaction.get('description', '')
-        amount = transaction.get('operationAmount', {}).get('amount', '')
-        currency = transaction.get('operationAmount', {}).get('currency', {}).get('code', '')
+        amount = transaction.get('amount', '')
+        currency = transaction.get('currency', {}).get('code', '')
 
         frm = transaction.get('from', '')
         to = transaction.get('to', '')
 
         # Применяем регулярные выражения для маскировки номеров
+        # Проверяем тип и содержимое перед маской на наличие 'nan'
         def apply_masks(text):
+            if pd.isnull(text) or text.lower() == 'nan':
+                return ''
             text = str(text)
             text = re.sub(r'\b\d{16}\b', lambda x: get_mask_card_number(x.group()), text)
             text = re.sub(r'\b\d{20}\b', lambda x: get_mask_account(x.group()), text)
@@ -141,13 +193,15 @@ def display_transactions(filtered_data):
 
         # Формируем детальную запись транзакции
         operation_details = f"{date} {description}\n"
-        if frm and to:
-            operation_details += f"{frm_masked} -> {to_masked}\n"
-        elif frm:
-            operation_details += f"{frm_masked}\n"
-        elif to:
+        # Проверяем наличие данных для вывода
+        if frm_masked.strip():  # выводим отправителя, если он задан
+            operation_details += f"{frm_masked}"
+        if to_masked.strip():  # выводим получателя, если он задан
+            if frm_masked.strip():
+                operation_details += f" -> "
             operation_details += f"{to_masked}\n"
-        operation_details += f"Сумма: {amount} {currency}\n\n"
+
+        operation_details += f"Сумма: {amount} {currency}\n"
 
         print(operation_details)
 

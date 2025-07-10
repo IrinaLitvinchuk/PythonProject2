@@ -15,30 +15,42 @@ def get_converted_amount(transaction: dict) -> Optional[float]:
     Если валюта RUB, сумма сразу выводится без конвертации. Если USD или EUR,
     происходит обращение к внешнему API."""
     to_currency = "RUB"
-    amount = transaction.get('operationAmount', {}).get('amount', '')
-    currency_code = transaction.get('operationAmount', {}).get('currency', {}).get('code', '')
 
-    if currency_code in ["USD", "EUR"]:
+    # Сначала проверяем, есть ли вложенная структура operationAmount
+    if 'operationAmount' in transaction:
+        amount = transaction.get('operationAmount', {}).get('amount', '')
+        currency_code = transaction.get('operationAmount', {}).get('currency', {}).get('code', '')
+    else:
+        # Иначе берем сумму и валюту напрямую
+        amount = transaction.get('amount', '')
+        currency_code = transaction.get('currency_code', '')
+
+    # Преобразуем сумму в float, если она доступна
+    if amount == '':
+        return None
+    amount_float = float(amount)
+
+    if currency_code in ["USD", "EUR"]:  # Если валюта подлежит конвертации
         try:
             url = (
-                f"https://api.apilayer.com/exchangerates_data/convert?to={to_currency}&from={currency_code}"
-                f"&amount={amount}"
+                f"https://api.apilayer.com/exchangerates_data/convert?"
+                f"to={to_currency}&from={currency_code}&amount={amount_float:.2f}"  # округлим до двух знаков после запятой
             )
             headers = {"apikey": API_KEY}
             response = requests.request("GET", url, headers=headers)
 
             if response.status_code != 200:
-                raise Exception(f"Request failed with status code {response.status_code}: {response.text}")
+                raise Exception(f"Запрос завершился неудачей с кодом статуса {response.status_code}: {response.text}")
 
             data = response.json()
-            result = cast(float, data["result"])  # Ясно говорим mypy, что это float
+            result = float(data["result"])
             return result
 
         except requests.exceptions.RequestException as e:
-            print(f"An error occurred: {e}. Please try again later.")
+            print(f"Произошла ошибка: {e}. Повторите попытку позднее.")
             return None
     else:
-        return float(amount)  # Преобразование в float, чтобы соответствовать типу функции
+        return amount_float  # Если валюта уже в рублях, возвращаем сумму без изменений
 
 
 # path = "data/operations.json"
