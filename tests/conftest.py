@@ -217,6 +217,7 @@ def operations_data() -> list:
         {"id": 3, "amount": 3000, "description": "Покупка техники"},
     ]
 
+
 @pytest.fixture
 def bank_data() -> list:
     return [
@@ -267,15 +268,7 @@ def bank_data() -> list:
         },
     ]
 
+
 @pytest.fixture
 def categories():
     return ["Перевод со счета на счет", "Перевод с карты на счет", "Перевод организации"]
-
-
-@pytest.fixture
-def bank_data() -> list:
-    return EXAMPLE_BANK_DATA.copy()  # Возвращаем копию данных, чтобы избежать мутации оригинала
-
-@pytest.fixture
-def categories():
-    return EXAMPLE_CATEGORIES.copy()

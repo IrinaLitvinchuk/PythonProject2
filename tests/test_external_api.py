@@ -48,7 +48,7 @@ def test_api_request_failure(mock_request: Mock, sample_transaction_usd: dict) -
     with pytest.raises(Exception) as exception_info:
         get_converted_amount(sample_transaction_usd)
     # Проверяем сообщение исключения
-    assert str(exception_info.value) == "Request failed with status code 400: Bad request"
+    assert str(exception_info.value) == "Запрос завершился неудачей с кодом статуса 400: Bad request"
 
 
 def test_invalid_currency(invalid_transaction: dict) -> None:

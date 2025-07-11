@@ -1,6 +1,6 @@
 import pytest
 
-from src.search_and_count import process_bank_search, process_bank_operations
+from src.search_and_count import process_bank_operations, process_bank_search
 
 
 @pytest.mark.parametrize(
@@ -14,7 +14,8 @@ from src.search_and_count import process_bank_search, process_bank_operations
 )
 def test_process_bank_search(operations_data, search_term, expected_output):
     result = process_bank_search(operations_data, search_term)
-    assert  result == expected_output
+    assert result == expected_output
+
 
 # для теста 2й функции
 # Конкретные тестовые данные, используемые в @pytest.mark.parametrize
@@ -75,10 +76,10 @@ EXAMPLE_CATEGORIES = ["Перевод со счета на счет", "Пере�
         (
             EXAMPLE_BANK_DATA,
             EXAMPLE_CATEGORIES,
-            {'Перевод со счета на счет': 2, 'Перевод организации': 2, 'Перевод с карты на счет': 1},
+            {"Перевод со счета на счет": 2, "Перевод организации": 2, "Перевод с карты на счет": 1},
         ),
         ([], EXAMPLE_CATEGORIES, {}),
-        (EXAMPLE_BANK_DATA[:2], EXAMPLE_CATEGORIES, {'Перевод организации': 1, 'Перевод со счета на счет': 1}),
+        (EXAMPLE_BANK_DATA[:2], EXAMPLE_CATEGORIES, {"Перевод организации": 1, "Перевод со счета на счет": 1}),
     ],
 )
 def test_process_bank_operations(input_data, input_categories, expected_output):

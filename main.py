@@ -11,10 +11,12 @@ from src.processing import filter_by_state, sort_by_date
 import re
 
 
-def greet_and_choose_file():
+def greet_and_choose_file(max_attempts=3):
     """Шаг 1: Приветствие пользователя и выбор файла."""
     print("Привет! Добро пожаловать в программу работы с банковскими транзакциями.")
-    while True:
+    attempts = 0
+
+    while attempts < max_attempts:
         print("""
         Выберите необходимый пункт меню:
         1. Получить информацию о транзакциях из JSON-файла
@@ -34,6 +36,11 @@ def greet_and_choose_file():
             return 'excel', data
         else:
             print(f'Данный пункт меню: {choice} отсутствует')
+            attempts += 1
+
+    # Выход из функции, если превышено число попыток
+    print("Максимальное число попыток достигнуто. Завершение работы.")
+    return None, None
 
 
 def filter_by_status(data):
@@ -177,7 +184,7 @@ def display_transactions(filtered_data):
         frm = transaction.get('from', '')
         to = transaction.get('to', '')
 
-        # Применяем регулярные выражения для маскировки номеров
+        # Применяем регулярные выражения для маскировки номеров.
         # Проверяем тип и содержимое перед маской на наличие 'nan'
         def apply_masks(text):
             if pd.isnull(text) or text.lower() == 'nan':
