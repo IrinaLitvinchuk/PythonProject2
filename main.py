@@ -1,5 +1,3 @@
-import math
-
 import pandas as pd
 
 from src.external_api import get_converted_amount
@@ -43,48 +41,64 @@ def greet_and_choose_file(max_attempts=3):
     return None, None
 
 
-def filter_by_status(data):
+def filter_by_status(data, max_attempts=3):
     """Шаг 2: Фильтрация по статусу операции."""
-    while True:
+    attempts = 0
+
+    while attempts < max_attempts:
         print("\nВведите статус, по которому необходимо выполнить фильтрацию:")
         print("Доступные для фильтрации статусы: EXECUTED, CANCELED, PENDING\n")
         status = input().upper()
         if status in ['EXECUTED', 'CANCELED', 'PENDING']:
             filtered_data = filter_by_state(data, state=status)
-            # print(filtered_data)
             return filtered_data
         else:
             print(f'Статус операции {status} недоступен.')
+            attempts += 1
+
+    # Если превышено число попыток, уведомляем пользователя и завершаем работу
+    print("Максимальное число попыток достигнуто. Завершаем работу.")
+    return None
 
 
-def ask_for_sorting(filtered_data):
-    """Шаг 3: Предложение пользователю сортировать данные по дате."""
-    while True:
+def ask_for_sorting(filtered_data, max_attempts=3):
+    attempts = 0
+    while attempts < max_attempts:
         print('\nОтсортировать операции по дате? ')
         answer = input('Да/Нет: ').upper()
+
         if answer == 'ДА':
             while True:
                 print('Отсортировать по возрастанию или по убыванию?')
                 order = input('по возрастанию/по убыванию: ').lower()
+
                 if order == 'по возрастанию':
                     filtered_data = sort_by_date(filtered_data, reverse=False)
-                    # print(filtered_data)
                     return filtered_data
+
                 elif order == 'по убыванию':
                     filtered_data = sort_by_date(filtered_data, reverse=True)
-                    # print(filtered_data)
                     return filtered_data
+
                 else:
                     print('Проверьте корректность ввода')
+
         elif answer == 'НЕТ':
             return filtered_data
+
         else:
             print('Проверьте корректность ввода')
+            attempts += 1
+
+    # Если превышено число попыток, уведомляем пользователя и завершаем работу
+    print("Максимальное число попыток достигнуто. Завершаем работу.")
+    return None
 
 
-def ask_for_rub_convert(filtered_data):
+def ask_for_rub_convert(filtered_data, max_attempts=3):
     """Шаг 4: Предложение пользователю конвертировать все операции в рубли"""
-    while True:
+    attempts = 0
+    while attempts < max_attempts:
         print('\nВыводить только рублевые транзакции? ')
         answer = input('Да/Нет: ').upper()
         if answer == 'ДА':
@@ -102,11 +116,16 @@ def ask_for_rub_convert(filtered_data):
             return filtered_data
         else:
             print('Проверьте корректность ввода')
+            attempts +=1
+    # Если превышено число попыток, уведомляем пользователя и завершаем работу
+    print("Максимальное число попыток достигнуто. Завершаем работу.")
+    return None
 
 
-def ask_for_description(filtered_data):
+def ask_for_description(filtered_data, max_attempts=3):
     """Шаг 5: Фильтрация по определенному слову в описании."""
-    while True:
+    attempts = 0
+    while attempts < max_attempts:
         print('\nОтфильтровать список транзакций по определенному слову в описании? ')
         answer = input('Да/Нет: ').upper()
         if answer == 'ДА':
@@ -117,12 +136,19 @@ def ask_for_description(filtered_data):
             return filtered_data
         else:
             print('Проверьте корректность ввода')
+            attempts += 1
+    # Если превышено число попыток, уведомляем пользователя и завершаем работу
+    print("Максимальное число попыток достигнуто. Завершаем работу.")
+    return None
 
 
 def normalize_transaction(transaction):
     """
     Функция нормализует любую транзакцию, привнося её к одному виду.
     """
+
+    if not isinstance(transaction, dict):
+        raise TypeError("Входные данные должны быть словарем")
     normalized_tx = {}
     # ID
     normalized_tx['id'] = int(transaction.get('id', '')) if transaction.get('id') else None
@@ -217,22 +243,31 @@ def main():
     """"Функция отвечает за основную логику проекта и связывает функциональности между собой."""
     # Шаг 1: Получение данных из файла
     file_type, transactions = greet_and_choose_file()
+    if transactions is None:
+        return  # Прервать работу программы, если файл выбран некорректно
 
     # Шаг 2: Фильтрация данных по статусу операции
     filtered_data = filter_by_status(transactions)
+    if filtered_data is None:
+        return  # Прервать работу программы, если ошибка фильтрации
 
     # Шаг 3: Возможная сортировка по дате
     result = ask_for_sorting(filtered_data)
+    if result is None:
+        return  # Прервать работу программы, если ошибка сортировки
 
     # Шаг 4: Возможная сортировка по валюте - рубли
     result = ask_for_rub_convert(result)
+    if result is None:
+        return  # Прервать работу программы, если ошибка конвертации
 
     # Шаг 5 Возможный фильтр транзакций по определенному слову в описании
     result = ask_for_description(result)
+    if result is None:
+        return  # Прервать работу программы, если ошибка фильтрации по описанию
 
     # Шаг 6 Распечатываем результат
-    result = display_transactions(result)
-
+    display_transactions(result)
 
 if __name__ == '__main__':
     main()

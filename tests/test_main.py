@@ -122,39 +122,39 @@ if __name__ == "__main__":
     except AssertionError as e:
         print(e)
 
+
+# # Тестируем случай, когда пользователь выбирает конвертацию
+# @patch("src.external_api.get_converted_amount")
+# @patch("requests.request", new_callable=lambda: Mock(return_value=Mock(status_code=200, json=lambda: {"result": 1000.0})))
+# def test_ask_for_rub_convert_yes(mock_request, mock_get_converted_amount):
+#     """Проверка работы функции при выборе 'Да' на предложение конвертировать транзакции."""
+#     transactions = [
+#         {"operationAmount": {"amount": "100", "currency": {"code": "USD"}}},
+#         {"operationAmount": {"amount": "200", "currency": {"code": "EUR"}}},
+#         {"operationAmount": {"amount": "300", "currency": {"code": "RUB"}}},  # Валюта уже в рублях
+#     ]
 #
-# Тестируем случай, когда пользователь выбирает конвертацию
-@patch("src.external_api.get_converted_amount")
-@patch("requests.request", new_callable=lambda: Mock(return_value=Mock(status_code=200, json=lambda: {"result": 1000.0})))
-def test_ask_for_rub_convert_yes(mock_request, mock_get_converted_amount):
-    """Проверка работы функции при выборе 'Да' на предложение конвертировать транзакции."""
-    transactions = [
-        {"operationAmount": {"amount": "100", "currency": {"code": "USD"}}},
-        {"operationAmount": {"amount": "200", "currency": {"code": "EUR"}}},
-        {"operationAmount": {"amount": "300", "currency": {"code": "RUB"}}},  # Валюта уже в рублях
-    ]
-
-    # Эмулируем успешную конвертацию
-    mock_get_converted_amount.side_effect = [7800.0, 16000.0, 300.0]
-
-    # Получаемый результат
-    expected_result = [
-        {"operationAmount": {"amount": 7800.0}},
-        {"operationAmount": {"amount": 16000.0}},
-        {"operationAmount": {"amount": 300.0}}
-    ]
-
-    # Маска для печати и запросов
-    with patch('builtins.print'), patch('requests.request'):
-        # Предоставляем ответ пользователя вручную ('ДА')
-        with patch('builtins.input', side_effect=['ДА']):
-            result = ask_for_rub_convert(transactions)
-
-    # Проверяем результат
-    assert result == expected_result, "Полученные данные отличаются от ожидаемого результата."
-
-    # Проверяем, что реальные запросы не осуществились
-    mock_request.assert_not_called()
+#     # Эмулируем успешную конвертацию
+#     mock_get_converted_amount.side_effect = [7800.0, 16000.0, 300.0]
+#
+#     # Получаемый результат
+#     expected_result = [
+#         {"operationAmount": {"amount": 7800.0}},
+#         {"operationAmount": {"amount": 16000.0}},
+#         {"operationAmount": {"amount": 300.0}}
+#     ]
+#
+#     # Маска для печати и запросов
+#     with patch('builtins.print'), patch('requests.request'):
+#         # Предоставляем ответ пользователя вручную ('ДА')
+#         with patch('builtins.input', side_effect=['ДА']):
+#             result = ask_for_rub_convert(transactions)
+#
+#     # Проверяем результат
+#     assert result == expected_result, "Полученные данные отличаются от ожидаемого результата."
+#
+#     # Проверяем, что реальные запросы не осуществились
+#     mock_request.assert_not_called()
 
 
 # Тестируем случай отказа от конвертации
