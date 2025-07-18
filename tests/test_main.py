@@ -6,15 +6,8 @@ from unittest.mock import patch
 import pytest
 
 import main
-from main import (
-    ask_for_description,
-    ask_for_rub_convert,
-    ask_for_sorting,
-    display_transactions,
-    filter_by_status,
-    greet_and_choose_file,
-    normalize_transaction,
-)
+from main import (ask_for_description, ask_for_rub_convert, ask_for_sorting, display_transactions, filter_by_status,
+                  greet_and_choose_file, normalize_transaction)
 
 
 def test_greet_and_choose_file_json() -> None:
