@@ -30,7 +30,7 @@ def get_converted_amount(transaction: dict, use_mock: bool = False) -> Optional[
 
     if use_mock:
         # Режим тестирования:
-        pass  # Ничего не возвращаем, так как side_effect в тестах подставит значение
+        return None # Ничего не возвращаем, так как side_effect в тестах подставит значение
     else:
         # Обычный режим работы: обращаемся к API
         if currency_code in ["USD", "EUR"]:  # Если валюта подлежит конвертации

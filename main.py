@@ -1,4 +1,5 @@
 import re
+from typing import Any, Dict, List, Optional, Tuple
 
 import pandas as pd
 
@@ -10,7 +11,7 @@ from src.transaction_reader import read_transactions_from_csv, read_transactions
 from src.utils import get_transactions
 
 
-def greet_and_choose_file(max_attempts=3):
+def greet_and_choose_file(max_attempts: int = 3) -> Tuple[Optional[str], Optional[List[Dict[str, Any]]]]:
     """Шаг 1: Приветствие пользователя и выбор файла."""
     print("Привет! Добро пожаловать в программу работы с банковскими транзакциями.")
     attempts = 0
@@ -44,7 +45,7 @@ def greet_and_choose_file(max_attempts=3):
     return None, None
 
 
-def filter_by_status(data, max_attempts=3):
+def filter_by_status(data: List[dict[str, Any]], max_attempts: int = 3) -> Optional[List[dict[str, Any]]]:
     """Шаг 2: Фильтрация по статусу операции."""
     attempts = 0
 
@@ -64,7 +65,7 @@ def filter_by_status(data, max_attempts=3):
     return None
 
 
-def ask_for_sorting(filtered_data, max_attempts=3):
+def ask_for_sorting(filtered_data: List[Dict[str, Any]], max_attempts: int = 3) -> Optional[List[Dict[str, Any]]]:
     attempts = 0
     while attempts < max_attempts:
         print("\nОтсортировать операции по дате? ")
@@ -98,7 +99,9 @@ def ask_for_sorting(filtered_data, max_attempts=3):
     return None
 
 
-def ask_for_rub_convert(filtered_data, max_attempts=3, use_mock=False):
+def ask_for_rub_convert(
+    filtered_data: List[Dict[str, Any]], max_attempts: int = 3, use_mock: bool = False
+) -> Optional[List[Dict[str, Any]]]:
     """Шаг 4: Предложение пользователю конвертировать все операции в рубли"""
     attempts = 0
     while attempts < max_attempts:
@@ -122,7 +125,7 @@ def ask_for_rub_convert(filtered_data, max_attempts=3, use_mock=False):
     return None
 
 
-def ask_for_description(filtered_data, max_attempts=3):
+def ask_for_description(filtered_data: List[Dict[str, Any]], max_attempts: int = 3) -> Optional[List[Dict[str, Any]]]:
     """Шаг 5: Фильтрация по определенному слову в описании."""
     attempts = 0
     while attempts < max_attempts:
@@ -144,10 +147,8 @@ def ask_for_description(filtered_data, max_attempts=3):
     return None
 
 
-def normalize_transaction(transaction):
-    """
-    Функция нормализует любую транзакцию, привнося её к одному виду.
-    """
+def normalize_transaction(transaction: Dict[str, Any]) -> Dict[str, Any]:
+    """Функция нормализует любую транзакцию, привнося её к одному виду."""
 
     if not isinstance(transaction, dict):
         raise TypeError("Входные данные должны быть словарем")
@@ -185,7 +186,7 @@ def normalize_transaction(transaction):
     return normalized_tx
 
 
-def display_transactions(filtered_data):
+def display_transactions(filtered_data: List[Dict[str, Any]]) -> None:
     """Функция для красивого вывода операций в консоль."""
     print("\nРаспечатываю итоговый список транзакций...")
     if not filtered_data:
@@ -215,7 +216,7 @@ def display_transactions(filtered_data):
 
         # Применяем регулярные выражения для маскировки номеров.
         # Проверяем тип и содержимое перед маской на наличие 'nan'
-        def apply_masks(text):
+        def apply_masks(text: str) -> str:
             if pd.isnull(text) or text.lower() == "nan":
                 return ""
             text = str(text)
@@ -242,7 +243,7 @@ def display_transactions(filtered_data):
         print(operation_details)
 
 
-def main(use_mock=False):
+def main(use_mock: bool = False) -> None:
     """Функция отвечает за основную логику проекта и связывает функциональности между собой."""
     # Шаг 1: Получение данных из файла
     file_type, transactions = greet_and_choose_file()
@@ -264,12 +265,12 @@ def main(use_mock=False):
     if result is None:
         return  # Прервать работу программы, если ошибка конвертации
 
-    # Шаг 5 Возможный фильтр транзакций по определенному слову в описании
+    # Шаг 5: Возможный фильтр транзакций по определенному слову в описании
     result = ask_for_description(result)
     if result is None:
         return  # Прервать работу программы, если ошибка фильтрации по описанию
 
-    # Шаг 6 Распечатываем результат
+    # Шаг 6: Выводим результат
     display_transactions(result)
 
 

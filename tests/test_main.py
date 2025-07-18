@@ -1,36 +1,44 @@
 from contextlib import redirect_stdout
 from io import StringIO
+from typing import Any, Dict, List, Optional, cast
 from unittest.mock import patch
 
 import pytest
 
 import main
-from main import (ask_for_description, ask_for_rub_convert, ask_for_sorting, display_transactions, filter_by_status,
-                  greet_and_choose_file, normalize_transaction)
+from main import (
+    ask_for_description,
+    ask_for_rub_convert,
+    ask_for_sorting,
+    display_transactions,
+    filter_by_status,
+    greet_and_choose_file,
+    normalize_transaction,
+)
 
 
-def test_greet_and_choose_file_json():
+def test_greet_and_choose_file_json() -> None:
     """Заменяем input с выбором JSON-файла"""
     with patch("builtins.input", side_effect=["1"]):
         result = greet_and_choose_file()
         assert result[0] == "json"
 
 
-def test_greet_and_choose_file_csv():
+def test_greet_and_choose_file_csv() -> None:
     """Заменяем input с выбором CSV-файла"""
     with patch("builtins.input", side_effect=["2"]):
         result = greet_and_choose_file()
         assert result[0] == "csv"
 
 
-def test_greet_and_choose_file_excel():
+def test_greet_and_choose_file_excel() -> None:
     """Заменяем input с выбором Excel-файла"""
     with patch("builtins.input", side_effect=["3"]):
         result = greet_and_choose_file()
         assert result[0] == "excel"
 
 
-def test_greet_and_choose_file_invalid_option(capsys):
+def test_greet_and_choose_file_invalid_option(capsys: Any) -> None:
     """Симулируем ввод несуществующего пункта меню"""
     with patch("builtins.input", side_effect=["4", "4", "4"]):
         result = greet_and_choose_file()
@@ -41,24 +49,30 @@ def test_greet_and_choose_file_invalid_option(capsys):
     assert "Данный пункт меню: 4 отсутствует" in captured.out
 
 
-def test_filter_by_status():
+def test_filter_by_status() -> None:
     """Тестирование функции фильтрации по статусу с фиктивным вводом пользователя"""
-    mock_data = [{"state": "EXECUTED"}, {"state": "CANCELED"}, {"state": "PENDING"}]
+    mock_data: List[Dict[str, Any]] = [{"state": "EXECUTED"}, {"state": "CANCELED"}, {"state": "PENDING"}]
 
-    # Заменяем input() на фиктивное значение "EXECUTED"
+    # Тест: фильтрация по "EXECUTED"
     with patch("builtins.input", return_value="EXECUTED"):
         result = filter_by_status(mock_data)
+        assert result is not None  # Гарантия для mypy
+        result = cast(List[Dict[str, Any]], result)
+
         assert len(result) > 0
         assert all(txn["state"] == "EXECUTED" for txn in result)
 
-    # Проверим другой статус, например "CANCELED"
+    # Тест: фильтрация по "CANCELED"
     with patch("builtins.input", return_value="CANCELED"):
         result = filter_by_status(mock_data)
+        assert result is not None
+        result = cast(List[Dict[str, Any]], result)
+
         assert len(result) > 0
         assert all(txn["state"] == "CANCELED" for txn in result)
 
 
-def test_filter_by_status_invalid():
+def test_filter_by_status_invalid() -> None:
     """Проверка поведения при некорректном вводе статуса"""
     mock_data = [{"state": "EXECUTED"}, {"state": "CANCELED"}, {"state": "PENDING"}]
 
@@ -71,42 +85,42 @@ def test_filter_by_status_invalid():
 test_data = [{"date": "2023-08-15"}, {"date": "2023-07-20"}, {"date": "2023-09-01"}]
 
 
-def run_test_ask_for_sorting(input_values, expected_output):
+def run_test_ask_for_sorting(input_values: List[str], expected_output: Optional[List[Dict[str, Any]]]) -> None:
     """Проверка запроса на сортировку при разном вводе пользователя"""
     with patch("builtins.input", side_effect=input_values):
         result = ask_for_sorting(test_data.copy())
         assert result == expected_output, f"Expected output: {expected_output}, but got: {result}"
 
 
-def test_sort_ascending():
+def test_sort_ascending() -> None:
     """Пользователь согласился на сортировку по возрастанию"""
     input_values = ["ДА", "по возрастанию"]
     expected_output = sorted(test_data, key=lambda x: x["date"])
     run_test_ask_for_sorting(input_values, expected_output)
 
 
-def test_sort_descending():
+def test_sort_descending() -> None:
     """Пользователь согласился на сортировку по убыванию"""
     input_values = ["ДА", "по убыванию"]
     expected_output = sorted(test_data, key=lambda x: x["date"], reverse=True)
     run_test_ask_for_sorting(input_values, expected_output)
 
 
-def test_no_sorting():
+def test_no_sorting() -> None:
     """Пользователь отказался от сортировки"""
     input_values = ["НЕТ"]
     expected_output = test_data
     run_test_ask_for_sorting(input_values, expected_output)
 
 
-def test_incorrect_answer_then_correct():
+def test_incorrect_answer_then_correct() -> None:
     """Проверка обработки неправильного ввода пользователя, затем правильного"""
     input_values = ["НЕПРАВИЛЬНЫЙ_ОТВЕТ", "ДА", "по возрастанию"]
     expected_output = sorted(test_data, key=lambda x: x["date"])
     run_test_ask_for_sorting(input_values, expected_output)
 
 
-def test_max_attempt_reached():
+def test_max_attempt_reached() -> None:
     """Проверка завершения работы при исчерпании количества попыток"""
     input_values = ["ПЛОХОЙ_ОТВЕТ"] * 3
     expected_output = None
@@ -127,7 +141,7 @@ def test_max_attempt_reached():
 
 # Тестируем случай, когда пользователь выбирает конвертацию
 @patch("main.get_converted_amount")  # Патчим по месту ИМПОРТА
-def test_ask_for_rub_convert_yes(mock_get_converted_amount):
+def test_ask_for_rub_convert_yes(mock_get_converted_amount: Any) -> None:
     transactions = [
         {"operationAmount": {"amount": "100", "currency": {"code": "USD"}}},
         {"operationAmount": {"amount": "200", "currency": {"code": "EUR"}}},
@@ -149,7 +163,7 @@ def test_ask_for_rub_convert_yes(mock_get_converted_amount):
 
 
 @patch("main.get_converted_amount")
-def test_ask_for_rub_convert_no(mock_get_converted_amount):
+def test_ask_for_rub_convert_no(mock_get_converted_amount: Any) -> None:
     transactions = [
         {"operationAmount": {"amount": "100", "currency": {"code": "USD"}}},
         {"operationAmount": {"amount": "200", "currency": {"code": "EUR"}}},
@@ -163,9 +177,9 @@ def test_ask_for_rub_convert_no(mock_get_converted_amount):
     mock_get_converted_amount.assert_not_called()  # Убедимся, что внешний API не использовался
 
 
-def test_ask_for_rub_convert_incorrect_input():
+def test_ask_for_rub_convert_incorrect_input() -> None:
     """Проверка обработки неправильного ввода пользователя."""
-    transactions = []
+    transactions: list = []
 
     # Три раза введён неправильный ввод ("ABC"), потом правильный ("ДА")
     with (
@@ -176,9 +190,9 @@ def test_ask_for_rub_convert_incorrect_input():
         assert result is None  # Так как никакие транзакции не были обработаны из-за ограничений по попыткам
 
 
-def test_ask_for_rub_convert_max_attempt_reached():
+def test_ask_for_rub_convert_max_attempt_reached() -> None:
     """Проверка завершения работы функции когда попытки превышены."""
-    transactions = []
+    transactions: list[dict] = []
 
     # Неправильный ввод четыре раза подряд
     with (
@@ -189,7 +203,7 @@ def test_ask_for_rub_convert_max_attempt_reached():
         assert result is None  # Возвращается None при превышении количества попыток
 
 
-def test_ask_for_description_yes():
+def test_ask_for_description_yes() -> None:
     """Проверка подтверждения фильтрации с указанием конкретного слова."""
     transactions = [
         {"description": "Оплата услуг"},
@@ -207,7 +221,7 @@ def test_ask_for_description_yes():
     assert result == expected_filtered_data
 
 
-def test_ask_for_description_no():
+def test_ask_for_description_no() -> None:
     """Проверка отказа от фильтрации."""
     transactions = [{"description": "Оплата налогов"}, {"description": "Оплата кредита"}]
 
@@ -219,7 +233,7 @@ def test_ask_for_description_no():
     assert result == transactions
 
 
-def test_ask_for_description_too_many_attempts():
+def test_ask_for_description_too_many_attempts() -> None:
     """Проверка окончания работы при множестве неверных ответов."""
     transactions = [{"description": "Оплата ЖКХ"}]
 
@@ -234,7 +248,7 @@ def test_ask_for_description_too_many_attempts():
     mocked_print.assert_any_call("Максимальное число попыток достигнуто. Завершаем работу.")
 
 
-def test_normalize_valid_json_transaction():
+def test_normalize_valid_json_transaction() -> None:
     """Нормализация JSON-транзакции"""
     json_transaction = {
         "id": "12345",
@@ -261,7 +275,7 @@ def test_normalize_valid_json_transaction():
     assert actual_result == expected_output, f"Результат {actual_result} не совпадает с ожидаемым {expected_output}"
 
 
-def test_normalize_valid_csv_transaction():
+def test_normalize_valid_csv_transaction() -> None:
     """Нормализация CSV-транзакции"""
     csv_transaction = {
         "id": "67890",
@@ -290,7 +304,7 @@ def test_normalize_valid_csv_transaction():
     assert actual_result == expected_output, f"Результат {actual_result} не совпадает с ожидаемым {expected_output}"
 
 
-def test_normalize_missing_values():
+def test_normalize_missing_values() -> None:
     """Нормализация транзакции с пропущенными полями"""
     incomplete_transaction = {"id": "12345", "state": "EXECUTED", "date": "2023-01-01T12:00:00Z", "from": ""}
 
@@ -309,9 +323,9 @@ def test_normalize_missing_values():
     assert actual_result == expected_output, f"Результат {actual_result} не совпадает с ожидаемым {expected_output}"
 
 
-def test_normalize_invalid_input():
-    """ "Неправильные данные (не словарь)"""
-    invalid_transaction = "Not a dictionary"
+def test_normalize_invalid_input() -> None:
+    """Неправильные данные (не словарь)"""
+    invalid_transaction = cast(Any, "Not a dictionary")  # так mypy не будет ругаться
     with pytest.raises(TypeError, match="Входные данные должны быть словарем"):
         normalize_transaction(invalid_transaction)
 
@@ -355,7 +369,7 @@ partial_transactions = [
 ]
 
 
-def test_display_transactions_valid_data():
+def test_display_transactions_valid_data() -> None:
     """Проверка вывода транзакций при наличии данных"""
     with redirect_stdout(StringIO()) as out:
         display_transactions(transactions)
@@ -366,7 +380,7 @@ def test_display_transactions_valid_data():
     assert "Сумма: 2000 840" in output
 
 
-def test_display_transactions_no_data():
+def test_display_transactions_no_data() -> None:
     """Проверка реакции на отсутствие данных"""
     with redirect_stdout(StringIO()) as out:
         display_transactions([])
@@ -374,7 +388,7 @@ def test_display_transactions_no_data():
     assert "Не найдено ни одной транзакции, подходящей под ваши условия фильтрации." in output
 
 
-def test_display_transactions_partial_data():
+def test_display_transactions_partial_data() -> None:
     """Проверка обработки транзакций с недостающими полями"""
     with redirect_stdout(StringIO()) as out:
         display_transactions(partial_transactions)
@@ -385,9 +399,9 @@ def test_display_transactions_partial_data():
     assert "Сумма: 2000 840" in output
 
 
-def test_display_transactions_wrong_type():
-    """Неправильный тип данных (не словарь)"""
-    wrong_data = "This is not a dictionary"
+def test_display_transactions_wrong_type() -> None:
+    """Неправильный тип данных (не список словарей)"""
+    wrong_data = cast(Any, "This is not a dictionary")
     with pytest.raises(TypeError, match="Входные данные должны быть словарем"):
         display_transactions(wrong_data)
 
@@ -418,7 +432,7 @@ fake_transactions = [
 # Основной тест
 @patch("main.get_transactions", return_value=fake_transactions)
 @patch("main.display_transactions")
-def test_main_function(mock_display, mock_get_transactions):
+def test_main_function(mock_display: Any, mock_get_transactions: Any) -> None:
     """Основной тест: пользователь вводит"""
     # Моделируем пользовательский ввод
     inputs = [
@@ -441,7 +455,7 @@ def test_main_function(mock_display, mock_get_transactions):
 
 
 @patch("main.get_transactions")
-def test_main_function_bad_choice(mock_get_transactions, capsys):
+def test_main_function_bad_choice(mock_get_transactions: Any, capsys: Any) -> None:
     """Тестирование неправильного ввода 3 раза подряд и завершения программы"""
     bad_inputs = ["4", "4", "4"]
 
