@@ -4,16 +4,14 @@ from typing import Optional, cast
 import requests
 from dotenv import load_dotenv
 
-from src.utils import get_transactions
-
 load_dotenv()
 API_KEY = os.getenv("API_KEY")
 
 
-def get_converted_amount(transaction: dict) -> Optional[float]:
+def get_converted_amount(transaction: dict, use_mock: bool = False) -> Optional[float]:
     """Принимает на вход транзакцию и возвращает сумму транзакции в рублях.
     Если валюта RUB, сумма сразу выводится без конвертации. Если USD или EUR,
-    происходит обращение к внешнему API."""
+    происходит обращение к внешнему API. В режиме тестирования (use_mock=True) API не вызывается."""
     to_currency = "RUB"
 
     # Сначала проверяем, есть ли вложенная структура operationAmount
@@ -30,27 +28,32 @@ def get_converted_amount(transaction: dict) -> Optional[float]:
         return None
     amount_float = float(amount)
 
-    if currency_code in ["USD", "EUR"]:  # Если валюта подлежит конвертации
-        try:
-            url = (
-                f"https://api.apilayer.com/exchangerates_data/convert?"
-                f"to={to_currency}&from={currency_code}&amount={amount_float:.2f}"  # округлим до двух знаков после запятой
-            )
-            headers = {"apikey": API_KEY}
-            response = requests.request("GET", url, headers=headers)
-
-            if response.status_code != 200:
-                raise Exception(f"Запрос завершился неудачей с кодом статуса {response.status_code}: {response.text}")
-
-            data = response.json()
-            result = float(data["result"])
-            return result
-
-        except requests.exceptions.RequestException as e:
-            print(f"Произошла ошибка: {e}. Повторите попытку позднее.")
-            return None
+    if use_mock:
+        # Режим тестирования:
+        pass  # Ничего не возвращаем, так как side_effect в тестах подставит значение
     else:
-        return amount_float  # Если валюта уже в рублях, возвращаем сумму без изменений
+        # Обычный режим работы: обращаемся к API
+        if currency_code in ["USD", "EUR"]:  # Если валюта подлежит конвертации
+            try:
+                url = (
+                    f"https://api.apilayer.com/exchangerates_data/convert?"
+                    f"to={to_currency}&from={currency_code}&amount={amount_float:.2f}"  # округлим до двух знаков после запятой
+                )
+                headers = {"apikey": API_KEY}
+                response = requests.request("GET", url, headers=headers)
+
+                if response.status_code != 200:
+                    raise Exception(f"Запрос завершился неудачей с кодом статуса {response.status_code}: {response.text}")
+
+                data = response.json()
+                result = float(data["result"])
+                return result
+
+            except requests.exceptions.RequestException as e:
+                print(f"Произошла ошибка: {e}. Повторите попытку позднее.")
+                return None
+        else:
+            return amount_float  # Если валюта уже в рублях, возвращаем сумму без изменений
 
 
 # path = "data/operations.json"
