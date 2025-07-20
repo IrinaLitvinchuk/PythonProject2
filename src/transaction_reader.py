@@ -7,6 +7,7 @@ def read_transactions_from_csv(file_path: str) -> list[dict]:
     """Функция считывает финансовые операции из файла CSV и возвращает список словарей"""
     try:
         df = pd.read_csv(file_path, delimiter=";")
+        #df['date'] = pd.to_datetime(df['date'], infer_datetime_format=True)
         # print(df.shape)
         # print(df.head(3))
         transactions_list = df.to_dict(orient="records")
@@ -20,9 +21,9 @@ def read_transactions_from_csv(file_path: str) -> list[dict]:
         return []
 
 
-if __name__ == "__main__":
-    list_transactions = read_transactions_from_csv("data/transactions.csv")
-    print(list_transactions)
+# if __name__ == "__main__":
+#     list_transactions = read_transactions_from_csv("data/transactions.csv")
+#     print(list_transactions)
 
 
 def read_transactions_from_excel(file_path: str) -> list[dict]:
@@ -42,6 +43,6 @@ def read_transactions_from_excel(file_path: str) -> list[dict]:
         return []
 
 
-if __name__ == "__main__":
-    list_transactions = read_transactions_from_excel("data/transactions_excel.xlsx")
-    print(list_transactions)
+# if __name__ == "__main__":
+#     list_transactions = read_transactions_from_excel("data/transactions_excel.xlsx")
+#     print(list_transactions)

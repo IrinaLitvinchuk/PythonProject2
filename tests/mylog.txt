@@ -1,0 +1,3 @@
+my_function error: ZeroDivisionError. Inputs: (1, 0), {}
+Start: 1747163982.715965
+Finish: 1747163982.715968
